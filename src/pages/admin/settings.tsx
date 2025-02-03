@@ -1,102 +1,4 @@
-```javascript
-function SettingsForm({ session }: { session: Session }) {
-  const toast = useToast();
-  const { mutate, isLoading } = useMutation(updateSettings, {
-    onSuccess: (res) => {
-      toast({
-        title: "Settings successfully updated.",
-        status: "success",
-        isClosable: true,
-      });
-      axios
-        .get("/auth/session", { params: { update: true, username: res.data.username } })
-        .then(reloadSession);
-    },
-    onError: (error) => {
-      toast({
-        title: (error as any).response.data.message,
-        status: "error",
-        isClosable: true,
-      });
-    },
-  });
-  const {
-    register,
-    handleSubmit,
-    setError,
-    clearErrors,
-    formState: { errors, isDirty },
-  } = useForm<SettingsProps>({
-    resolver: zodResolver(SettingsSchema),
-    defaultValues: async () => getSettings(session!.user.username),
-  });
-
-  const onUsernameChange = useDebouncedCallback(async (username: string) => {
-    const isCurrentUsername = username === session.user.username;
-    const { data } = await checkAvailability("username", username);
-    if (!isCurrentUsername && !data.ok) {
-      data.errors.forEach((value) =>
-        setError(value.field as "username", {
-          type: "custom",
-          message: value.message,
-        })
-      );
-    } else {
-      clearErrors("username");
-    }
-  }, 1000);
-
-  const onSubmit = handleSubmit((data) => {
-    mutate(data);
-  });
-
-  return (
-    <form onSubmit={onSubmit} style={{ width: "95%", maxWidth: "450px" }}>
-      <Flex
-        w="full"
-        backgroundColor="whiteAlpha.900"
-        p="6"
-        gap="4"
-        rounded="2xl"
-        border="1px"
-        borderColor="gray.300"
-        direction="column"
-      >
-        <Input
-          register={register}
-          name="username"
-          label="Username"
-          placeholder="yourname"
-          error={errors.username}
-          size="sm"
-          variant="outline"
-          leftAddon="link.hub/"
-          onChange={(e) => {
-            if (e.target.value) onUsernameChange(e.target.value);
-          }}
-          required
-        />
-        <Input
-          register={register}
-          name="name"
-          label="Name (optional)"
-          placeholder="Your Name"
-          error={errors.name}
-          size="sm"
-        />
-        <Button
-          type="submit"
-          mt="2"
-          isDisabled={!isDirty || isLoading}
-          isLoading={isLoading}
-        >
-          {isLoading ? "Updating..." : "Update"}
-        </Button>
-      </Flex>
-    </form>
-  );
-}
-```import Head from "next/head";
+import Head from "next/head";
 import { useSession } from "next-auth/react";
 import { Box, Flex, Heading, Spinner, useToast } from "@chakra-ui/react";
 import { useForm } from "react-hook-form";
@@ -227,7 +129,7 @@ function SettingsForm({ session }: { session: Session }) {
           name="username"
           label="Username"
           placeholder="yourname"
-          error={errors.username}
+          error={errors.username as any}
           size="sm"
           variant="outline"
           leftAddon="link.hub/"

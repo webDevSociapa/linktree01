@@ -29,6 +29,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         username: signUpInfo.username,
         email: signUpInfo.email,
         password: hashedPassword,
+        links: {}, // Add appropriate value for links
         appearanceSettings: {
           create: {},
         },
